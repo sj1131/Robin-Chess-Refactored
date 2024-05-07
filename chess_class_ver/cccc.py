@@ -1,20 +1,20 @@
-import pygame
+from pygame.image import load
+from pygame.transform import scale
 from utils import *
-pygame.init()
 
 class Gameobject:
     dx = []
     dy = []
     move_candidate_x = []
     move_candidate_y = []
-    def __init__(self, team:int, lx:int, ly:int, img:pygame.Surface, *args):
+    def __init__(self, team:int, lx:int, ly:int, type:str):
         self.team = team
-        self.team_str = "W" if self.team == 1 else "B"
+        self.team_str = team2str(team)[0].upper()
         self.lx = lx
         self.ly = ly
         self._lx = lx
         self._ly = ly
-        self.img = img
+        self.img = scale(load(f"{img_base}/{team2str(team)} {type}.png"), (55, 55))
         self.clicked = False
     
     def click(self, mx, my):
@@ -42,7 +42,7 @@ class Gameobject:
             for i in range(len(self.move_candidate_x)):
                 text_print(display, "X", Font, color, (self.lx + self.move_candidate_x[i]) * 80 + 40, (self.ly + self.move_candidate_y[i]) * 80 + 40)
     
-    def moveclick(self, x,y, chessboard, b_p, b_died):
+    def moveclick(self, x, y, chessboard, other_team):
         xx = x//80
         yy = y//80
         xx -= self.lx
@@ -58,24 +58,25 @@ class Gameobject:
                     py = self.ly
                     self.lx += xx
                     self.ly += yy
-                    cx = self.lx
-                    cy = self.ly
-                    for i in b_p:
-                        if self.lx == i.lx and self.ly == i.ly:
-                            b_p.remove(i)
-                            b_died.append(i)
+                    for p in other_team.get_alive():
+                        p:Gameobject
+                        if (self.lx, self.ly) == p.get_pos():
+                            other_team.kill(p)
                     chessboard[self.ly][self.lx] = self.team
                     self.clicked = False
                     flag=False
-                    return self.team_str, px, py, cx, cy
-            
+                    return [self.team_str, px, py, self.lx, self.ly]
+
             if flag:
                 self.clicked = False
-        return self.team_str, 0, 0, 0, 0
+        return [self.team_str, 0, 0, 0, 0]
     
     def draw(self, display):
         display.blit(self.img, (8 + self.lx * 80, 8 + self.ly * 80))
     
+    def get_pos(self):
+        return (self.lx, self.ly)
+
     def reset(self):
         self.lx = self._lx
         self.ly = self._ly
@@ -84,6 +85,8 @@ class Gameobject:
 #####################################################################################
 
 class Knight(Gameobject):
+    def __init__(self, team: int, lx: int, ly: int):
+        super().__init__(team, lx, ly, "knight")
     def drawX(self, display, Font, color, chessboard):
         self.dx = [ 2,  1, -1, -2, -2, -1, 1, 2]
         self.dy = [-1, -2, -2, -1,  1,  2, 2, 1]
@@ -92,6 +95,8 @@ class Knight(Gameobject):
 #####################################################################################
 
 class Rook(Gameobject):
+    def __init__(self, team: int, lx: int, ly: int):
+        super().__init__(team, lx, ly, "rook")
     def drawX(self, display, Font, color, chessboard):
         for i in range(-1, -self.lx-1, -1):
             self.dy.append(0)
@@ -118,6 +123,8 @@ class Rook(Gameobject):
 #####################################################################################
 
 class Bishop(Gameobject):
+    def __init__(self, team: int, lx: int, ly: int):
+        super().__init__(team, lx, ly, "bishop")
     def drawX(self, display, Font, color, chessboard):
         self.dx = []
         self.dy = []
@@ -146,6 +153,8 @@ class Bishop(Gameobject):
 #####################################################################################
 
 class Queen(Gameobject):
+    def __init__(self, team: int, lx: int, ly: int):
+        super().__init__(team, lx, ly, "queen")
     def drawX(self, display, Font, color, chessboard):
         self.dx = []
         self.dy = []
@@ -195,6 +204,8 @@ class Queen(Gameobject):
 #####################################################################################
 
 class King(Gameobject):
+    def __init__(self, team: int, lx: int, ly: int):
+        super().__init__(team, lx, ly, "king")
     def drawX(self, display, Font, color, chessboard):
         self.dx = [1,  1,  0, -1, -1, -1, 0, 1]
         self.dy = [0, -1, -1, -1,  0,  1, 1, 1]
@@ -203,8 +214,8 @@ class King(Gameobject):
 #####################################################################################
 
 class Pawn(Gameobject):
-    def __init__(self, team: int, lx: int, ly: int, img: pygame.Surface, *args):
-        super().__init__(team, lx, ly, img, *args)
+    def __init__(self, team: int, lx: int, ly: int):
+        super().__init__(team, lx, ly, "pawn")
         self.First_move = True
         self.front = self.team * -1
 
@@ -224,8 +235,8 @@ class Pawn(Gameobject):
                 pass
         return super().drawX(display, Font, color, chessboard)
     
-    def moveclick(self, x, y, chessboard, b_p, b_died):
-        res = super().moveclick(x, y, chessboard, b_p, b_died)
+    def moveclick(self, x, y, chessboard, other_team):
+        res = super().moveclick(x, y, chessboard, other_team)
         if self.First_move and res[1] + res[2] + res[3] + res[4]:
             self.First_move = False
         return res
