@@ -58,7 +58,7 @@ BLACK_turn           = TextWidget("Turn : BLACK", (250, 50), (150, 675), white, 
 restart              = Button("restart", (250, 60), (430, 500), gray, red, start_font)
 captured_up          = TextWidget("Captured Pieces", (200, 33), (770, 20), white, black, main_font_s)
 captured_down        = TextWidget("Captured Pieces", (250, 33), (770, 400), black, white, main_font_s)
-home_button          = ImageButton(home, (5, 700))
+home_button          = ImageButton(home, (100, 100), (5, 700))
 
 __cb = [[-1, -1, -1, -1, -1, -1, -1 ,-1],
         [-1, -1, -1, -1, -1, -1, -1 ,-1],
@@ -180,7 +180,9 @@ def mainloop():
                 ##################################################################################
                 print("XXXX")
         pygame.display.flip()
-    pygame.quit()
 
 if __name__ == "__main__":
-    mainloop()
+    try:
+        mainloop()
+    except:
+        pygame.quit()

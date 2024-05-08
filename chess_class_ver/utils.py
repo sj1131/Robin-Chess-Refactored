@@ -53,6 +53,15 @@ class Button(TextWidget):
     def click(self, mx, my):
         return True if (mx > self.x and mx < self.x + self.w and my > self.y and my < self.y + self.h) else False
 
+class ImageButton(Button):
+    def __init__(self, img:pygame.Surface, wh:tuple, center:tuple):
+        self.img = img
+        self.x, self.y = center
+        self.w, self.h = wh
+
+    def draw(self, display):
+        display.blit(self.img, (self.x, self.y))
+
 class Timer:
     def __init__(self, Font, color, x, y, total_seconds):
         self.Font = Font
@@ -88,17 +97,3 @@ class Timer:
         self.current_seconds = self.total_seconds
         self.paused = False
         self.timeover = False
-
-####################################################################
-class ImageButton(Button):
-    def __init__(self, img:pygame.Surface, center:tuple):
-        self.img = img
-        self.x, self.y = center
-        self.w = 100
-        self.h = 100
-
-    def draw(self, display):
-        display.blit(self.img, (self.x, self.y))
-    
-
-####################################################################
