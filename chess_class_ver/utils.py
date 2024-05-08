@@ -4,8 +4,9 @@ import time
 from pygame.font import Font
 from os import listdir, getcwd
 
-base_dir = "./" if "images" in listdir(getcwd()) else "./chess_class_ver"
-img_base = f"{base_dir}/images"
+base_dir  = "./" if "images" in listdir(getcwd()) else "./chess_class_ver"
+img_base  = f"{base_dir}/images"
+font_base = f"{base_dir}/fonts"
 
 white = (255, 255, 255)
 black = (0, 0, 0)
