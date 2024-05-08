@@ -77,7 +77,13 @@ class Timer:
                 self.current_seconds = 0
         if timer_text == "00:00":
             self.timeover = True
+
+    def pause(self):
+        self.paused = True
     
+    def resume(self):
+        self.paused = False
+
     def reset(self):
         self.current_seconds = self.total_seconds
         self.paused = False

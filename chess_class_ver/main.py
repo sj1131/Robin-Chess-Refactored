@@ -1,12 +1,3 @@
-import pygame
-from pygame.font import Font
-import copy
-import socket
-import threading
-from cccc import *
-from utils import *
-from piece import *
-
 ##############################################################################
 """
 cccc.py 파일에서 [기물이름]을 검색하시면 기물별 이동위치 검사 및 이동 코드를 확인하실수 있습니다.
@@ -25,13 +16,22 @@ Ctrl + f를 누르시면 키워드 검색을 하실수 있습니다.
 # Refactored by SJ(Instagram @sjlee1131)
 ##############################################################################
 
+import pygame
+from pygame.font import Font
+import copy
+import socket
+import threading
+from cccc import *
+from utils import *
+from piece import *
+
+
 pygame.init()
 
 size = (900, 780) # 화면 비율을 수정하시면 오류가 생길수 있습니다.
 display = pygame.display.set_mode(size)
 Clock = pygame.time.Clock()
 fps = 60
-mclick = False
 pygame.display.set_caption("Robin Chess Game Project")
 icon = pygame.image.load(f"{img_base}/icon.png")
 pygame.display.set_icon(icon)
@@ -40,26 +40,25 @@ who_won = None
 home = pygame.image.load(f"{img_base}/home.png")
 home = pygame.transform.scale(home, (100, 100))
 
-default_font               = pygame.font.SysFont(None, 50)
-start_font                 = Font(f"{base_dir}/Merida Regular.ttf", 36)
-start_font_small           = Font(f"{base_dir}/Merida Regular.ttf", 20)
-main_font                  = Font(f"{base_dir}/Merida Regular.ttf", 36)
-main_font_ssssmaller       = Font(f"{base_dir}/Merida Regular.ttf", 15)
-gameover_font              = Font(f"{base_dir}/Merida Regular.ttf", 70)
-OpenSans_font_bold         = Font(f"{base_dir}/OpenSans-Bold.ttf", 55)
-OpenSans_font_bold_small   = Font(f"{base_dir}/OpenSans-Bold.ttf", 30)
-OpenSans_font_bold_biggger = Font(f"{base_dir}/OpenSans-Bold.ttf", 80)
+default_font         = pygame.font.SysFont(None, 50)
+start_font           = Font(f"{base_dir}/Merida Regular.ttf", 36)
+start_font_s         = Font(f"{base_dir}/Merida Regular.ttf", 20)
+main_font            = Font(f"{base_dir}/Merida Regular.ttf", 36)
+main_font_s          = Font(f"{base_dir}/Merida Regular.ttf", 15)
+gameover_font        = Font(f"{base_dir}/Merida Regular.ttf", 70)
+OpenSans_bold        = Font(f"{base_dir}/OpenSans-Bold.ttf", 55)
+OpenSans_bold_s      = Font(f"{base_dir}/OpenSans-Bold.ttf", 30)
+OpenSans_bold_l      = Font(f"{base_dir}/OpenSans-Bold.ttf", 80)
 
-offline_start_button = Button("GAME START", (350, 60), (450, 650), gray, black, OpenSans_font_bold)
-start_notion         = TextWidget("Robin Chess Game", (780, 100), (450, 150), gray, black, OpenSans_font_bold_biggger)
-subtitle             = TextWidget("Refactored by @sjlee1131", (780, 100), (450, 250), gray, black, OpenSans_font_bold_small)
-WHITE_turn           = TextWidget("Turn : WHITE", (250, 50), (150, 675), black, white, start_font_small)
-BLACK_turn           = TextWidget("Turn : BLACK", (250, 50), (150, 675), white, black, start_font_small)
+offline_start_button = Button("GAME START", (350, 60), (450, 650), gray, black, OpenSans_bold)
+start_notion         = TextWidget("Robin Chess Game", (780, 100), (450, 150), gray, black, OpenSans_bold_l)
+subtitle             = TextWidget("Refactored by @sjlee1131", (780, 100), (450, 250), gray, black, OpenSans_bold_s)
+WHITE_turn           = TextWidget("Turn : WHITE", (250, 50), (150, 675), black, white, start_font_s)
+BLACK_turn           = TextWidget("Turn : BLACK", (250, 50), (150, 675), white, black, start_font_s)
 restart              = Button("restart", (250, 60), (430, 500), gray, red, start_font)
-captured_up          = TextWidget("Captured Pieces", (200, 33), (770, 20), white, black, main_font_ssssmaller)
-captured_down        = TextWidget("Captured Pieces", (250, 33), (770, 400), black, white, main_font_ssssmaller)
-
-home_button = ImageButton(home, (5, 700))
+captured_up          = TextWidget("Captured Pieces", (200, 33), (770, 20), white, black, main_font_s)
+captured_down        = TextWidget("Captured Pieces", (250, 33), (770, 400), black, white, main_font_s)
+home_button          = ImageButton(home, (5, 700))
 
 __cb = [[-1, -1, -1, -1, -1, -1, -1 ,-1],
         [-1, -1, -1, -1, -1, -1, -1 ,-1],
@@ -71,19 +70,10 @@ __cb = [[-1, -1, -1, -1, -1, -1, -1 ,-1],
         [ 1,  1,  1,  1,  1,  1,  1,  1]]
 
 #-1 = black, 1 = white, 0 = nothing
-#############################################
-white_timer = Timer(start_font_small, white, 590, 660, 20 * 60+1)
-black_timer = Timer(start_font_small, white, 590, 690, 20 * 60+1)
-############################################
-
-
-w_team = Team(team=1)
-b_team = Team(team=-1)
-
 
 def mainloop():
-    white_timer = Timer(start_font_small, white, 590, 660, 20 * 60+1)
-    black_timer = Timer(start_font_small, white, 590, 690, 20 * 60+1)
+    white_timer = Timer(start_font_s, white, 590, 660, 20 * 60+1)
+    black_timer = Timer(start_font_s, white, 590, 690, 20 * 60+1)
 
     w_team = Team(team=1)
     b_team = Team(team=-1)
@@ -129,8 +119,8 @@ def mainloop():
             captured_down.draw(display)
             captured_up.draw(display)
             home_button.draw(display)
-            text_print(display, "WHITE : ", start_font_small, white, 470, 660)
-            text_print(display, "BLACK : ", start_font_small, white, 470, 690)
+            text_print(display, "WHITE : ", start_font_s, white, 470, 660)
+            text_print(display, "BLACK : ", start_font_s, white, 470, 690)
             white_timer.countdown(display)
             black_timer.countdown(display)
             if mclick:
@@ -139,12 +129,12 @@ def mainloop():
                     mclick = False
                     Gaming = False
             if Turn == 1:
-                white_timer.paused = False
-                black_timer.paused = True
+                white_timer.resume()
+                black_timer.pause()
                 WHITE_turn.draw(display)
             else:
-                white_timer.paused = True
-                black_timer.paused = False
+                white_timer.pause()
+                black_timer.resume()
                 BLACK_turn.draw(display)
                 
             #################################################################################
