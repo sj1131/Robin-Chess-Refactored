@@ -138,6 +138,7 @@ def mainloop():
                 BLACK_turn.draw(display)
                 
             #################################################################################
+            moved = False
             for p in w_team.get_alive() + b_team.get_alive():
                 p:Gameobject
                 p.draw(display)
@@ -149,6 +150,7 @@ def mainloop():
                             p.click(xx,yy)
                         else:
                             socket_list = p.moveclick(xx, yy, chessboard, other_team)
+                            moved = True
                             if socket_list[1] != socket_list[3] or socket_list[2] != socket_list[4]:
                                 print(socket_list)
                                 Turn *= -1
@@ -160,7 +162,16 @@ def mainloop():
             
             w_team.render_dead(display=display)
             b_team.render_dead(display=display)
-                    
+
+            if moved:
+                w_team.update_attackable(chessboard)
+                b_team.update_attackable(chessboard)
+
+            if w_team.is_Check(b_team.get_attackable()):
+                print("white check")
+            if b_team.is_Check(w_team.get_attackable()):
+                print("black check")
+
             if w_team.king_died or white_timer.timeover:
                 who_won = "BLACK"
                 Gaming = False
@@ -182,7 +193,9 @@ def mainloop():
         pygame.display.flip()
 
 if __name__ == "__main__":
-    try:
-        mainloop()
-    except:
-        pygame.quit()
+    mainloop()
+    # try:
+    #     mainloop()
+    # except Exception as e:
+    #     print(e)
+    #     pygame.quit()

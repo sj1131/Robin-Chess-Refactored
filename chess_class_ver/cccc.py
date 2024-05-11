@@ -27,11 +27,13 @@ class Gameobject:
         else:
             self.clicked = False
     
-    def drawX(self, display, Font, color,chessboard):
+    def drawX(self, display, Font, color,chessboard, draw=True):
+        if None in [display, Font, color]:
+            return
         if self.clicked and len(self.move_candidate_x) == 0 and len(self.move_candidate_y) == 0:
             #만약 move candidate x가 비어있다면 채워주는 코드
             for i, x in enumerate(self.dx):
-                if self.lx + x not in list(range(0, 8)) or self.ly + self.dy[i] not in list(range(0, 8)):
+                if self.lx + x not in range(0, 8) or self.ly + self.dy[i] not in range(0, 8):
                     continue
                 elif chessboard[self.ly + self.dy[i]][self.lx + x] == self.team:
                     continue
@@ -76,6 +78,23 @@ class Gameobject:
     
     def get_pos(self):
         return (self.lx, self.ly)
+    
+    def getDxDy(self, chessboard):
+        self.drawX(None, None, None, chessboard=chessboard)
+        if not self.dx or not self.dy: return None
+        res = []
+        for i in range(len(self.dx)):
+            tx = self.lx + self.dx[i]
+            ty = self.ly + self.dy[i]
+            if tx not in range(0, 8) or ty not in range(0, 8):
+                continue
+            if chessboard[ty][tx]:
+                if chessboard[ty][tx] == self.team:
+                    continue
+                if self.lx == tx and self.ly == ty:
+                    continue
+            res.append((tx, ty))
+        return res
 
     def reset(self):
         self.lx = self._lx
